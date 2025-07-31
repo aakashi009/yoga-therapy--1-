@@ -69,25 +69,35 @@ const yogaDatabase = {
     {
       id: "urdhva-mukha-svanasana",
       name: "Urdhva Mukha Svanasana",
-      description: "A gentle backbend that strengthens the spine and opens the chest.",
-      benefits: "Strengthens the spine, stretches chest and lungs, relieves stress and fatigue.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+      description: "Ūrdhva means upward, Mukha means face, Śvāna means dog. The pose mimics a dog stretching with its head up.",
+      benefits: "Rejuvenates the spine, Relieves stiff back, sciatica, lumbago, and slipped discs, Strengthens back, arms, thighs, and buttocks, Expands chest, improves lung capacity, Enhances pelvic blood circulation and maintains pelvic heal",
+      imageUrl: "/images/urdhva mukha svanasana.png",
       difficulty: "intermediate",
       steps: [
-        "Lie face down with palms flat on the floor under your shoulders.",
-        "Press your palms into the floor and slowly lift your chest off the ground.",
-        "Keep your pelvis on the floor and shoulders relaxed.",
-        "Hold for 15-30 seconds, breathing deeply.",
+        "Lie face down on the floor.",
+
+"Keep feet one foot apart, toes pointing back. Place palms beside the waist, fingers forward.",
+
+"Inhale, raise the head and chest, stretch the arms, lifting the trunk without resting the knees.",
+
+"Legs stay straight and tight, weight on palms and toes only.",
+
+"Stretch the spine, push chest forward, throw head back, and engage buttocks.",
+
+"Hold for 30 seconds to 1 minute with deep breathing.",
+
+"Exhale, bend elbows, and lower down to relax.",
       ],
     },
   ],
+  // digestion
   diabetes: [
     {
       id: "prasarita-padottanasana",
       name: "Prasarita Padottanasana",
       description: "A wide-legged forward fold that massages abdominal organs and improves digestion.",
       benefits: "Massages abdominal organs, improves digestion, relieves gas and bloating.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+      imageUrl: "/images/prasarita padottanasana.png",
       difficulty: "beginner",
       steps: [
         "Stand with feet wide apart, hands on hips.",
@@ -101,7 +111,7 @@ const yogaDatabase = {
       name: "Padangusthasana/Padahastasana",
       description: "A forward fold that stimulates digestive organs and improves metabolism.",
       benefits: "Stimulates digestive organs, improves metabolism, relieves constipation.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+      imageUrl: "/images/padangusthasanapadahastasana.png",
       difficulty: "intermediate",
       steps: [
         "Stand with feet hip-width apart.",
@@ -115,7 +125,7 @@ const yogaDatabase = {
       name: "Uttaanasana",
       description: "A standing forward fold that calms the mind and aids digestion.",
       benefits: "Aids digestion, calms nervous system, relieves stress.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+      imageUrl: "/images/uttansana.png",
       difficulty: "beginner",
       steps: [
         "Stand with feet hip-width apart.",
@@ -129,7 +139,7 @@ const yogaDatabase = {
       name: "Salabhasana",
       description: "A backbend that strengthens the core and stimulates digestive fire.",
       benefits: "Strengthens core, stimulates digestive fire, improves metabolism.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+      imageUrl: "/images/salabhasana.png",
       difficulty: "intermediate",
       steps: [
         "Lie on your stomach with arms alongside your body.",
@@ -143,7 +153,7 @@ const yogaDatabase = {
       name: "Paripurna Navasana",
       description: "A core-strengthening pose that stimulates abdominal organs and improves digestion.",
       benefits: "Strengthens core, stimulates abdominal organs, improves digestion.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+     imageUrl: "/images/paripurna navasana.png",
       difficulty: "advanced",
       steps: [
         "Sit with knees bent and feet flat on the floor.",
@@ -157,7 +167,7 @@ const yogaDatabase = {
       name: "Avdha Navasana",
       description: "A modified boat pose that gently engages the core and aids digestion.",
       benefits: "Gently engages core, aids digestion, improves abdominal strength.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+      imageUrl: "/images/avdha navasana.png",
       difficulty: "intermediate",
       steps: [
         "Sit with knees bent and feet flat on the floor.",
@@ -171,7 +181,7 @@ const yogaDatabase = {
       name: "Parsva Halasana",
       description: "A side plow pose that massages internal organs and improves digestion.",
       benefits: "Massages internal organs, improves digestion, stimulates liver and kidneys.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+      imageUrl: "/images/parsva halasana.png",
       difficulty: "advanced",
       steps: [
         "From plow pose, slowly lower your legs to one side.",
@@ -181,13 +191,15 @@ const yogaDatabase = {
       ],
     },
   ],
+
+  // hypotension and hypertension
   anxiety: [
     {
       id: "sirasana",
       name: "Sirasana",
       description: "The king of all poses - a headstand that regulates blood pressure and improves circulation.",
       benefits: "Regulates blood pressure, improves circulation, calms the nervous system, enhances mental clarity.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+      imageUrl: "/images/sirasana.png",
       difficulty: "advanced",
       steps: [
         "Start in a kneeling position and place your forearms on the floor, elbows shoulder-width apart.",
@@ -204,7 +216,7 @@ const yogaDatabase = {
       name: "Halasana",
       description: "The plow pose that helps regulate blood pressure and calms the nervous system.",
       benefits: "Regulates blood pressure, calms nervous system, improves circulation, reduces stress and anxiety.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+      imageUrl: "/images/halasana.png",
       difficulty: "intermediate",
       steps: [
         "Lie on your back with arms alongside your body, palms down.",
@@ -220,7 +232,7 @@ const yogaDatabase = {
       name: "Viloma Pranayama - Stage 1 (For Low BP)",
       description: "A breathing technique with interrupted inhalation that helps raise blood pressure naturally.",
       benefits: "Increases blood pressure, energizes the body, improves circulation, enhances vitality.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+      imageUrl: "/images/viloma pranayama stage 1.png",
       difficulty: "intermediate",
       steps: [
         "Sit comfortably in a cross-legged position or lie down on your back.",
@@ -238,7 +250,7 @@ const yogaDatabase = {
       name: "Viloma Pranayama - Stage 2 (For High BP)",
       description: "A breathing technique with interrupted exhalation that helps lower blood pressure naturally.",
       benefits: "Reduces blood pressure, calms the nervous system, reduces stress, promotes relaxation.",
-      imageUrl: "/placeholder.svg?height=300&width=400",
+      imageUrl: "/images/viloma pranayama stage 2.png",
       difficulty: "intermediate",
       steps: [
         "Sit comfortably in a cross-legged position or lie down on your back.",
@@ -253,6 +265,7 @@ const yogaDatabase = {
       ],
     },
   ],
+  // meditative asana
   insomnia: [
     {
       id: "siddhasana",

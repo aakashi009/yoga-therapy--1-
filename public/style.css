@@ -1,0 +1,145 @@
+/* --- Google Font Import --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* --- Dark Theme Color Palette --- */
+:root {
+    /* Accent Color (kept from the original theme) */
+    --primary-green: #20c997;
+    --primary-green-dark: #1baa80;
+
+    /* Dark Theme Backgrounds */
+    --background-dark: #121212; /* Main page background */
+    --container-dark: #1e1e1e;  /* Form container background */
+
+    /* Dark Theme Text */
+    --text-light: #e0e0e0;      /* Primary text */
+    --text-medium: #a0a0a0;    /* Subtitles and labels */
+    
+    /* Other Colors */
+    --border-dark: #444444;      /* Input borders */
+    --error-red: #ff5252;       /* Brighter red for dark background */
+    --success-green: #4caf50;   /* Brighter green for dark background */
+    --font-family: 'Poppins', sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--background-dark);
+    color: var(--text-light);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.auth-container {
+    background-color: var(--container-dark);
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 420px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-dark);
+}
+
+h2 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-light);
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 16px;
+    color: var(--text-medium);
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-medium);
+}
+
+input {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 16px;
+    background-color: #2c2c2c;
+    border: 1px solid var(--border-dark);
+    color: var(--text-light);
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.25); /* Adjusted glow for dark theme */
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary-green);
+    color: #ffffff; /* White text on green button */
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-top: 10px;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--primary-green-dark);
+}
+
+.message {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    min-height: 20px;
+}
+
+.message.error {
+    color: var(--error-red);
+}
+
+.message.success {
+    color: var(--success-green);
+}
+
+.switch-page {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+    color: var(--text-medium);
+}
+
+.switch-page a {
+    color: var(--primary-green);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.switch-page a:hover {
+    text-decoration: underline;
+    color: var(--primary-green-dark);
+}
