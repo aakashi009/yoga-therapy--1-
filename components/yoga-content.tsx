@@ -27,10 +27,15 @@ const healthConditions: {
 ]
 
 // --- HELPER COMPONENT: Timer ---
-const Timer = ({ isFinished, setIsFinished }: { isFinished: boolean, setIsFinished: (isFinished: boolean) => void }) => {
+const Timer = ({ isFinished, setIsFinished, onTimerFinish }: { 
+  isFinished: boolean, 
+  setIsFinished: (isFinished: boolean) => void,
+  onTimerFinish?: (duration: number) => void 
+}) => {
   const [time, setTime] = useState(60); // Default time in seconds
   const [isActive, setIsActive] = useState(false);
   const [inputTime, setInputTime] = useState("1:00");
+  const [initialTime, setInitialTime] = useState(60);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const synth = useRef<Tone.Synth | null>(null);
@@ -52,6 +57,11 @@ const Timer = ({ isFinished, setIsFinished }: { isFinished: boolean, setIsFinish
       setIsFinished(true);
       if (intervalRef.current) clearInterval(intervalRef.current);
       
+      // Call the timer finish callback with the actual duration
+      if (onTimerFinish) {
+        onTimerFinish(initialTime);
+      }
+      
       // Play a repeated, loud buzzer sound for 5 seconds
       if (synth.current) {
         let buzzCount = 0;
@@ -68,13 +78,15 @@ const Timer = ({ isFinished, setIsFinished }: { isFinished: boolean, setIsFinish
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (buzzIntervalRef.current) clearInterval(buzzIntervalRef.current);
     };
-  }, [isActive, time, setIsFinished]);
+  }, [isActive, time, setIsFinished, onTimerFinish, initialTime]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputTime(e.target.value);
     const [minutes, seconds] = e.target.value.split(':').map(Number);
     if (!isNaN(minutes) && !isNaN(seconds)) {
-      setTime(minutes * 60 + seconds);
+      const newTime = minutes * 60 + seconds;
+      setTime(newTime);
+      setInitialTime(newTime);
       setIsFinished(false);
       if (buzzIntervalRef.current) clearInterval(buzzIntervalRef.current);
     }
@@ -140,6 +152,17 @@ const PracticeModal = ({ pose, onClose }: { pose: any; onClose: () => void }) =>
     onClose();
   };
 
+  const handleTimerFinish = (duration: number) => {
+    // Import practice tracker dynamically to avoid SSR issues
+    import("@/lib/practice-tracker").then(({ practiceTracker }) => {
+      practiceTracker.recordPractice(
+        pose.name,
+        duration,
+        pose.condition || "general"
+      );
+    });
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50 p-4 animate-fade-in">
       <div className={`bg-[#0d1a1a] border-2 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-8 relative transition-all duration-500 ${isTimerFinished ? 'border-red-500 animate-pulse' : 'border-teal-700 shadow-teal-0/0'}`}>
@@ -159,7 +182,11 @@ const PracticeModal = ({ pose, onClose }: { pose: any; onClose: () => void }) =>
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
             </div>
-            <Timer isFinished={isTimerFinished} setIsFinished={setIsTimerFinished} />
+            <Timer 
+              isFinished={isTimerFinished} 
+              setIsFinished={setIsTimerFinished} 
+              onTimerFinish={handleTimerFinish}
+            />
           </div>
 
           {/* Right Side: Steps */}
@@ -190,6 +217,7 @@ const yogaDatabase = {
         "Tones leg muscles, relieves stiffness in hips and legs. Corrects minor deformities, promotes even development. Eases backaches, neck pain, strengthens ankles, improves chest expansion.",
       imageUrl: "/images/utthita-trikonasana.png",
       difficulty: "beginner",
+      condition: "backpain",
       steps: [
         "Stand in Tadasana.",
         "Inhale, jump feet apart 3 to 3.5 feet. Arms out at shoulder level, palms down.",
@@ -209,6 +237,7 @@ const yogaDatabase = {
         "Corrects drooping shoulders and hunched back. Stretches and tones the entire spine. Suitable even for the elderly or those with spinal injury.",
       imageUrl: "/images/ustrasana.png",
       difficulty: "beginner",
+      condition: "backpain",
       steps: [
         "Kneel on the floor, thighs and feet together, toes pointing back.",
         "Place palms on the hips, stretch the thighs, and arch the spine back.",
@@ -228,6 +257,7 @@ const yogaDatabase = {
         "Expands and opens the chest. Relieves stiffness in shoulders, back, and legs. Strengthens ankles and knees. Tones abdominal and spinal muscles. Improves stamina and posture.",
       imageUrl: "/images/virabhadrasana.png",
       difficulty: "intermediate",
+      condition: "backpain",
       steps: [
         "Begin in Tadasana (standing pose).",
         "Raise both arms overhead, palms together.",
@@ -247,6 +277,7 @@ const yogaDatabase = {
       benefits: "Rejuvenates the spine, Relieves stiff back, sciatica, lumbago, and slipped discs, Strengthens back, arms, thighs, and buttocks, Expands chest, improves lung capacity, Enhances pelvic blood circulation and maintains pelvic heal",
       imageUrl: "/images/urdhva mukha svanasana.png",
       difficulty: "intermediate",
+      condition: "backpain",
       steps: [
         "Lie face down on the floor.",
         "Keep feet one foot apart, toes pointing back. Place palms beside the waist, fingers forward.",
@@ -267,6 +298,7 @@ const yogaDatabase = {
       benefits: "This asana fully develops the hamstring and abductor muscles while also encouraging blood to flow to the trunk and the head. It is noted to increase digestive powers and is a beneficial pose for those who are unable to do Sīrşāsana (headstand). Furthermore, along with other standing poses, Prasarita Padottanasana can help to reduce body weight.",
       imageUrl: "/images/prasarita padottanasana.png",
       difficulty: "beginner",
+      condition: "diabetes",
       steps: [
         "Stand in Tadasana",
         "Place your hands on your waist, inhale, and with a jump, spread your legs apart to a distance of 4.5 to 5 feet.",

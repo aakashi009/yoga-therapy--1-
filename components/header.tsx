@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import { Menu, X, User, Bell } from "lucide-react"
+import Dashboard from "./dashboard"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -86,6 +87,9 @@ export default function Header() {
               Contact Us
             </Link>
 
+            {/* Dashboard */}
+            <Dashboard />
+
             {/* Notifications */}
             <div className="relative">
               <button
@@ -164,6 +168,9 @@ export default function Header() {
             <Link href="/contact" className="hover:text-[#00DF82] transition-colors">
               Contact Us
             </Link>
+            <div className="flex items-center hover:text-[#00DF82] transition-colors">
+              <Dashboard />
+            </div>
             <button
               onClick={handleNotificationClick}
               className="flex items-center hover:text-[#00DF82] transition-colors text-left"
