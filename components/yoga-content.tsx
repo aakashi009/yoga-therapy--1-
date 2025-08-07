@@ -1,9 +1,183 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, BookOpen, Clock, Heart, Shield, ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowRight, BookOpen, Clock, Heart, Shield, ChevronLeft, ChevronRight, X, Play, Pause, RotateCcw } from "lucide-react"
+import * as Tone from 'tone' // For generating sound
+
+// --- MOVED THIS TO THE TOP ---
+// Type definition for health conditions
+const healthConditions: {
+  id: string
+  name: string
+}[] = [
+  { id: "backpain", name: "Back Pain" },
+  { id: "diabetes", name: "Digestion" },
+  { id: "anxiety", name: "Hypotension and Hypertension" },
+  { id: "insomnia", name: "Meditative asana" },
+  { id: "digestion", name: "Slipped Disc" },
+  { id: "hypertension", name: "Shoulder Problem" },
+  { id: "arthritis", name: "Kidneys Problem" },
+  { id: "respiratory", name: "Respiratory Problems" },
+  { id: "migraine", name: "Knee and Ankle problem" },
+  { id: "obesity", name: "Blood Circulation" },
+  { id: "bladder", name: "Yoga for Athlete" },
+  { id: "menstrual", name: "Menstrual Pain" },
+]
+
+// --- HELPER COMPONENT: Timer ---
+const Timer = ({ isFinished, setIsFinished }: { isFinished: boolean, setIsFinished: (isFinished: boolean) => void }) => {
+  const [time, setTime] = useState(60); // Default time in seconds
+  const [isActive, setIsActive] = useState(false);
+  const [inputTime, setInputTime] = useState("1:00");
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const synth = useRef<Tone.Synth | null>(null);
+  const buzzIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Initialize the audio synth
+  useEffect(() => {
+    // Set volume to be louder
+    synth.current = new Tone.Synth({ volume: 5 }).toDestination();
+  }, []);
+
+  useEffect(() => {
+    if (isActive && time > 0) {
+      intervalRef.current = setInterval(() => {
+        setTime((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (time === 0 && isActive) {
+      setIsActive(false);
+      setIsFinished(true);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      
+      // Play a repeated, loud buzzer sound for 5 seconds
+      if (synth.current) {
+        let buzzCount = 0;
+        buzzIntervalRef.current = setInterval(() => {
+            synth.current?.triggerAttackRelease("C2", "0.1s");
+            buzzCount++;
+            if (buzzCount >= 10) { // 10 * 500ms = 5 seconds
+                if(buzzIntervalRef.current) clearInterval(buzzIntervalRef.current);
+            }
+        }, 500);
+      }
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (buzzIntervalRef.current) clearInterval(buzzIntervalRef.current);
+    };
+  }, [isActive, time, setIsFinished]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputTime(e.target.value);
+    const [minutes, seconds] = e.target.value.split(':').map(Number);
+    if (!isNaN(minutes) && !isNaN(seconds)) {
+      setTime(minutes * 60 + seconds);
+      setIsFinished(false);
+      if (buzzIntervalRef.current) clearInterval(buzzIntervalRef.current);
+    }
+  };
+
+  const toggleTimer = () => {
+    if (time === 0) setIsFinished(false);
+    setIsActive(!isActive);
+    if (buzzIntervalRef.current) clearInterval(buzzIntervalRef.current);
+  };
+
+  const resetTimer = () => {
+    setIsActive(false);
+    setIsFinished(false);
+    if (buzzIntervalRef.current) clearInterval(buzzIntervalRef.current);
+    const [minutes, seconds] = inputTime.split(':').map(Number);
+    setTime(minutes * 60 + seconds);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="text-center bg-teal-950/50 p-4 rounded-lg border border-teal-700">
+      <div className={`text-6xl font-mono text-white mb-4 transition-colors ${isFinished ? 'text-red-500' : ''}`}>
+        {formatTime(time)}
+      </div>
+      <div className="flex items-center justify-center gap-4 mb-4">
+        <label htmlFor="timer-input" className="text-teal-400">Set Time (mm:ss):</label>
+        <input 
+          type="text"
+          id="timer-input"
+          value={inputTime}
+          onChange={handleInputChange}
+          disabled={isActive}
+          className="bg-gray-700 text-white w-24 text-center p-1 rounded border border-teal-600 focus:ring-2 focus:ring-teal-400 focus:outline-none"
+        />
+      </div>
+      <div className="flex justify-center gap-4">
+        <button onClick={toggleTimer} className="p-3 bg-teal-500 text-white rounded-full hover:bg-teal-600 transition-colors">
+          {isActive ? <Pause size={24} /> : <Play size={24} />}
+        </button>
+        <button onClick={resetTimer} className="p-3 bg-gray-600 text-white rounded-full hover:bg-gray-700 transition-colors">
+          <RotateCcw size={24} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+
+// --- HELPER COMPONENT: Practice Modal ---
+const PracticeModal = ({ pose, onClose }: { pose: any; onClose: () => void }) => {
+  const [isTimerFinished, setIsTimerFinished] = useState(false);
+
+  if (!pose) return null;
+
+  const handleClose = () => {
+    setIsTimerFinished(false);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-90 flex justify-center items-center z-50 p-4 animate-fade-in">
+      <div className={`bg-[#0d1a1a] border-2 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-8 relative transition-all duration-500 ${isTimerFinished ? 'border-red-500 animate-pulse' : 'border-teal-700 shadow-teal-0/0'}`}>
+        <button onClick={handleClose} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-transform hover:scale-110">
+          <X size={28} />
+        </button>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Left Side: Image and Timer */}
+          <div className="flex flex-col gap-6">
+            <h2 className="text-3xl font-bold text-white text-center bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-green-400">{pose.name}</h2>
+            <div className="relative h-72 w-full rounded-lg overflow-hidden border-2 border-teal-800 group">
+              <Image
+                src={pose.imageUrl || "/placeholder.svg"}
+                alt={pose.name}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            </div>
+            <Timer isFinished={isTimerFinished} setIsFinished={setIsTimerFinished} />
+          </div>
+
+          {/* Right Side: Steps */}
+          <div className="flex flex-col">
+            <h3 className="text-2xl font-semibold text-teal-400 mb-4">How to Practice:</h3>
+            <div className="space-y-3 text-gray-300 pr-2 max-h-[400px] overflow-y-auto custom-scrollbar">
+              <ol className="list-decimal list-inside space-y-2">
+                {pose.steps.map((step: string, index: number) => (
+                  <li key={index} className="leading-relaxed">{step}</li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Database of yoga poses for different health conditions
 const yogaDatabase = {
@@ -75,49 +249,51 @@ const yogaDatabase = {
       difficulty: "intermediate",
       steps: [
         "Lie face down on the floor.",
-
-"Keep feet one foot apart, toes pointing back. Place palms beside the waist, fingers forward.",
-
-"Inhale, raise the head and chest, stretch the arms, lifting the trunk without resting the knees.",
-
-"Legs stay straight and tight, weight on palms and toes only.",
-
-"Stretch the spine, push chest forward, throw head back, and engage buttocks.",
-
-"Hold for 30 seconds to 1 minute with deep breathing.",
-
-"Exhale, bend elbows, and lower down to relax.",
+        "Keep feet one foot apart, toes pointing back. Place palms beside the waist, fingers forward.",
+        "Inhale, raise the head and chest, stretch the arms, lifting the trunk without resting the knees.",
+        "Legs stay straight and tight, weight on palms and toes only.",
+        "Stretch the spine, push chest forward, throw head back, and engage buttocks.",
+        "Hold for 30 seconds to 1 minute with deep breathing.",
+        "Exhale, bend elbows, and lower down to relax.",
       ],
     },
   ],
-  // digestion
+  // ... (rest of your yogaDatabase remains the same)
   diabetes: [
     {
       id: "prasarita-padottanasana",
       name: "Prasarita Padottanasana",
-      description: "A wide-legged forward fold that massages abdominal organs and improves digestion.",
-      benefits: "Massages abdominal organs, improves digestion, relieves gas and bloating.",
+      description: "Prasarita Padottanasana is a standing yoga posture. The name comes from Sanskrit, where Prasarita means expanded, spread, or extended, and Pada means foot. Therefore, the name describes a pose where the legs are spread apart and stretched intensely.",
+      benefits: "This asana fully develops the hamstring and abductor muscles while also encouraging blood to flow to the trunk and the head. It is noted to increase digestive powers and is a beneficial pose for those who are unable to do Sīrşāsana (headstand). Furthermore, along with other standing poses, Prasarita Padottanasana can help to reduce body weight.",
       imageUrl: "/images/prasarita padottanasana.png",
       difficulty: "beginner",
       steps: [
-        "Stand with feet wide apart, hands on hips.",
-        "Fold forward from the hips, placing hands on the floor.",
-        "Keep your spine long and breathe deeply.",
-        "Hold for 1-2 minutes, then slowly rise up.",
+        "Stand in Tadasana",
+        "Place your hands on your waist, inhale, and with a jump, spread your legs apart to a distance of 4.5 to 5 feet.",
+        "Tighten your legs by pulling up your knee-caps. Exhale and place your palms on the floor between your feet, aligning them with your shoulders.",
+        "Inhale and lift your head, keeping your back concave.",
+        "Exhale, bend your elbows, and rest the crown of your head on the floor, ensuring your body weight remains on your legs and not your head. Your feet, palms, and head should form a straight line.",
+        "Hold the pose for 30 seconds, breathing deeply and evenly.",
+        "To release the pose, inhale, lift your head from the floor, and straighten your arms at the elbows, making the back concave again.",
+        "Exhale and return to a standing position with your hands on your waist.",
+        "Finally, jump back to Tadasana.",
       ],
     },
     {
-      id: "padangusthasana-padahastasana",
+      id: "padangusthasana",
       name: "Padangusthasana/Padahastasana",
-      description: "A forward fold that stimulates digestive organs and improves metabolism.",
-      benefits: "Stimulates digestive organs, improves metabolism, relieves constipation.",
+      description: "This posture's name comes from Pada (foot) and Angustha (big toe), as it involves standing and catching the big toes",
+      benefits: "The effects of both postures are the same. They are beneficial for toning the abdominal organs, such as the liver and spleen, and for increasing digestive juices. Those who suffer from a bloating sensation or other gastric issues can benefit from practicing these two asanas. The concave back position (as seen in Plates 21 and 23) is noted as a for individuals with slipped spinal discs, though it is imperative to get guidance from a guru before attempting this, as mastering the position can be difficult",
       imageUrl: "/images/padangusthasanapadahastasana.png",
       difficulty: "intermediate",
       steps: [
-        "Stand with feet hip-width apart.",
-        "Fold forward and hold your big toes or place hands under feet.",
-        "Keep knees slightly bent if needed.",
-        "Hold for 30-60 seconds, breathing deeply.",
+        "Begin in Tadasana, with the legs spread one foot apart.",
+        "Exhale, bend your body forward, and grip the big toes with your thumbs and first two fingers.",
+        "Keeping your head up, stretch your diaphragm and make your back as concave as possible by bending from the pelvic region.",
+        "Ensure your legs remain stiff and straight at the knees. Hold for one or two breaths.",
+        "Exhale again and bring your head in between your knees, pulling on your toes to assist the movement.",
+        "Stay in this final position for about 20 seconds, breathing normally.",
+        "To release, inhale and lift your head to the concave back position, then let go of the toes and stand up, returning to Tadasana.",
       ],
     },
     {
@@ -153,7 +329,7 @@ const yogaDatabase = {
       name: "Paripurna Navasana",
       description: "A core-strengthening pose that stimulates abdominal organs and improves digestion.",
       benefits: "Strengthens core, stimulates abdominal organs, improves digestion.",
-     imageUrl: "/images/paripurna navasana.png",
+      imageUrl: "/images/paripurna navasana.png",
       difficulty: "advanced",
       steps: [
         "Sit with knees bent and feet flat on the floor.",
@@ -753,6 +929,9 @@ export default function YogaContent({ showOnlyPrerequisites = false }: YogaConte
   const [selectedCondition, setSelectedCondition] = useState<string | null>(null)
   const [poses, setPoses] = useState<any[]>([])
   const [currentPoseIndex, setCurrentPoseIndex] = useState(0)
+  
+  // NEW STATE FOR MODAL
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     // Listen for custom event from Sidebar
@@ -769,6 +948,15 @@ export default function YogaContent({ showOnlyPrerequisites = false }: YogaConte
       document.removeEventListener("conditionSelected", handleConditionSelected)
     }
   }, [])
+  
+  // MODAL HANDLERS
+  const openPracticeModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closePracticeModal = () => {
+    setIsModalOpen(false);
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -923,89 +1111,97 @@ export default function YogaContent({ showOnlyPrerequisites = false }: YogaConte
     const currentPose = poses[currentPoseIndex]
 
     return (
-      <div className="md:w-3/4 bg-white rounded-lg shadow p-6 border border-[#03624C]/20">
-        {/* Header with pose counter */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold text-[#030F0F]">Yoga Poses for {conditionName}</h2>
-          <div className="text-sm text-gray-600">
-            Pose {currentPoseIndex + 1} of {poses.length}
-          </div>
-        </div>
-
-        {/* Current Pose Display */}
-        <div className="space-y-6">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="md:w-1/3">
-              <div className="relative h-60 w-full rounded-lg overflow-hidden border-2 border-[#00DF82]/20">
-                <Image
-                  src={currentPose.imageUrl || "/placeholder.svg"}
-                  alt={currentPose.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+      <>
+        <div className="md:w-3/4 bg-white rounded-lg shadow p-6 border border-[#03624C]/20">
+          {/* Header with pose counter */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-[#030F0F]">Yoga Poses for {conditionName}</h2>
+            <div className="text-sm text-gray-600">
+              Pose {currentPoseIndex + 1} of {poses.length}
             </div>
-            <div className="md:w-2/3">
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className="text-xl font-semibold text-[#030F0F]">{currentPose.name}</h3>
-                {/* Difficulty Level Indicator */}
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-3 h-3 rounded-full ${getDifficultyColor(currentPose.difficulty)}`}
-                    title={`Difficulty: ${getDifficultyLabel(currentPose.difficulty)}`}
-                  ></div>
-                  <span className="text-sm text-gray-600">{getDifficultyLabel(currentPose.difficulty)}</span>
+          </div>
+
+          {/* Current Pose Display */}
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="md:w-1/3">
+                <div className="relative h-60 w-full rounded-lg overflow-hidden border-2 border-[#00DF82]/20">
+                  <Image
+                    src={currentPose.imageUrl || "/placeholder.svg"}
+                    alt={currentPose.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
               </div>
-              <p className="text-gray-700 mb-4">{currentPose.description}</p>
+              <div className="md:w-2/3">
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-xl font-semibold text-[#030F0F]">{currentPose.name}</h3>
+                  {/* Difficulty Level Indicator */}
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-3 h-3 rounded-full ${getDifficultyColor(currentPose.difficulty)}`}
+                      title={`Difficulty: ${getDifficultyLabel(currentPose.difficulty)}`}
+                    ></div>
+                    <span className="text-sm text-gray-600">{getDifficultyLabel(currentPose.difficulty)}</span>
+                  </div>
+                </div>
+                <p className="text-gray-700 mb-4">{currentPose.description}</p>
 
-              <h4 className="font-medium text-[#030F0F] mb-2">Benefits:</h4>
-              <p className="text-gray-700 mb-4">{currentPose.benefits}</p>
+                <h4 className="font-medium text-[#030F0F] mb-2">Benefits:</h4>
+                <p className="text-gray-700 mb-4">{currentPose.benefits}</p>
 
-              <h4 className="font-medium text-[#030F0F] mb-2">How to practice:</h4>
-              <ol className="list-decimal list-inside text-gray-700 space-y-1">
-                {currentPose.steps.map((step: string, index: number) => (
-                  <li key={index}>{step}</li>
-                ))}
-              </ol>
-            </div>
-          </div>
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center pt-6 border-t border-[#03624C]/20">
-            <button
-              onClick={previousPose}
-              disabled={currentPoseIndex === 0}
-              className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
-                currentPoseIndex === 0
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-[#00DF82] text-[#030F0F] hover:bg-[#03624C] hover:text-white"
-              }`}
-            >
-              <ChevronLeft className="mr-2 w-5 h-5" />
-              Previous Asana
-            </button>
-
-            <div className="text-center">
-              <p className="text-sm text-gray-600 mb-1">Current Pose</p>
-              <p className="font-semibold text-[#030F0F]">{currentPose.name}</p>
+                <h4 className="font-medium text-[#030F0F] mb-2">How to practice:</h4>
+                <ol className="list-decimal list-inside text-gray-700 space-y-1">
+                  {currentPose.steps.map((step: string, index: number) => (
+                    <li key={index}>{step}</li>
+                  ))}
+                </ol>
+              </div>
             </div>
 
-            <button
-              onClick={nextPose}
-              disabled={currentPoseIndex === poses.length - 1}
-              className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
-                currentPoseIndex === poses.length - 1
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-[#00DF82] text-[#030F0F] hover:bg-[#03624C] hover:text-white"
-              }`}
-            >
-              Next Asana
-              <ChevronRight className="ml-2 w-5 h-5" />
-            </button>
+            {/* Navigation Buttons */}
+            <div className="flex justify-between items-center pt-6 border-t border-[#03624C]/20">
+              <button
+                onClick={previousPose}
+                disabled={currentPoseIndex === 0}
+                className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
+                  currentPoseIndex === 0
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-[#00DF82] text-[#030F0F] hover:bg-[#03624C] hover:text-white"
+                }`}
+              >
+                <ChevronLeft className="mr-2 w-5 h-5" />
+                Previous Asana
+              </button>
+
+              {/* THIS IS THE NEW PRACTICE BUTTON */}
+              <button 
+                onClick={openPracticeModal}
+                className="bg-teal-500 text-white font-semibold px-8 py-3 rounded-lg hover:bg-teal-600 transition-colors shadow-lg"
+              >
+                Practice
+              </button>
+
+              <button
+                onClick={nextPose}
+                disabled={currentPoseIndex === poses.length - 1}
+                className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
+                  currentPoseIndex === poses.length - 1
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-[#00DF82] text-[#030F0F] hover:bg-[#03624C] hover:text-white"
+                }`}
+              >
+                Next Asana
+                <ChevronRight className="ml-2 w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+
+        {/* RENDER THE MODAL */}
+        {isModalOpen && <PracticeModal pose={currentPose} onClose={closePracticeModal} />}
+      </>
     )
   }
 
@@ -1016,22 +1212,3 @@ export default function YogaContent({ showOnlyPrerequisites = false }: YogaConte
     </div>
   )
 }
-
-// Type definition for health conditions
-const healthConditions: {
-  id: string
-  name: string
-}[] = [
-  { id: "backpain", name: "Back Pain" },
-  { id: "diabetes", name: "Digestion" },
-  { id: "anxiety", name: "Hypotension and Hypertension" },
-  { id: "insomnia", name: "Meditative asana" },
-  { id: "digestion", name: "Slipped Disc" },
-  { id: "hypertension", name: "Shoulder Problem" },
-  { id: "arthritis", name: "Kidneys Problem" },
-  { id: "respiratory", name: "Respiratory Problems" },
-  { id: "migraine", name: "Knee and Ankle problem" },
-  { id: "obesity", name: "Blood Circulation" },
-  { id: "bladder", name: "Yoga for Athlete" },
-  { id: "menstrual", name: "Menstrual Pain" },
-]
