@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import FloatingChatbot from '@/components/floating-chatbot'
 
 export const metadata: Metadata = {
   title: 'CureThruYoga',
@@ -26,7 +27,10 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <FloatingChatbot />
+      </body>
     </html>
   )
 }
