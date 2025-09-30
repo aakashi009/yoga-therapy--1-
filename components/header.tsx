@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { Menu, X, User, Bell } from "lucide-react"
+import { Menu, X, User, Bell, MessageCircle } from "lucide-react"
 import Dashboard from "./dashboard"
 
 export default function Header() {
@@ -86,6 +86,10 @@ export default function Header() {
             <Link href="/contact" className="hover:text-[#00DF82] transition-colors">
               Contact Us
             </Link>
+            <Link href="/doctor-chat" className="flex items-center hover:text-[#00DF82] transition-colors">
+              <MessageCircle size={18} className="mr-1" />
+              <span>Chat with Doctor</span>
+            </Link>
 
             {/* Dashboard */}
             <Dashboard />
@@ -167,6 +171,10 @@ export default function Header() {
             </Link>
             <Link href="/contact" className="hover:text-[#00DF82] transition-colors">
               Contact Us
+            </Link>
+            <Link href="/doctor-chat" className="flex items-center hover:text-[#00DF82] transition-colors">
+              <MessageCircle size={18} className="mr-1" />
+              <span>Chat with Doctor</span>
             </Link>
             <div className="flex items-center hover:text-[#00DF82] transition-colors">
               <Dashboard />

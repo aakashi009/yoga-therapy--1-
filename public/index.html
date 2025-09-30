@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
 </head>
 <body>
 
@@ -23,6 +24,20 @@
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" required>
+            </div>
+            <!-- Added role selection -->
+            <div class="form-group">
+                <label>Login as</label>
+                <div style="display:flex; gap:12px; align-items:center; margin-top:6px;">
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="radio" name="role" id="role-user" value="user" checked>
+                        <span>User</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="radio" name="role" id="role-doctor" value="doctor">
+                        <span>Doctor</span>
+                    </label>
+                </div>
             </div>
             <button type="submit">Login</button>
         </form>

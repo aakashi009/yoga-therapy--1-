@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, BookOpen, Clock, Heart, Shield, ChevronLeft, ChevronRight, X, Play, Pause, RotateCcw } from "lucide-react"
+import { ArrowRight, BookOpen, Clock, Heart, Shield, ChevronLeft, ChevronRight, X, Play, Pause, RotateCcw, Plus, Minus } from "lucide-react"
 import * as Tone from 'tone' // For generating sound
 
 // --- MOVED THIS TO THE TOP ---
@@ -36,6 +36,7 @@ const Timer = ({ isFinished, setIsFinished, onTimerFinish }: {
   const [isActive, setIsActive] = useState(false);
   const [inputTime, setInputTime] = useState("1:00");
   const [initialTime, setInitialTime] = useState(60);
+  const [repetitions, setRepetitions] = useState(0);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const synth = useRef<Tone.Synth | null>(null);
@@ -61,6 +62,8 @@ const Timer = ({ isFinished, setIsFinished, onTimerFinish }: {
       if (onTimerFinish) {
         onTimerFinish(initialTime);
       }
+      // Increment repetition count when one timer cycle completes
+      setRepetitions((prev) => prev + 1);
       
       // Play a repeated, loud buzzer sound for 5 seconds
       if (synth.current) {
@@ -93,7 +96,11 @@ const Timer = ({ isFinished, setIsFinished, onTimerFinish }: {
   };
 
   const toggleTimer = () => {
-    if (time === 0) setIsFinished(false);
+    if (time === 0) {
+      // If timer had finished, clear finished state and reload initial time for the next repetition
+      setIsFinished(false);
+      setTime(initialTime);
+    }
     setIsActive(!isActive);
     if (buzzIntervalRef.current) clearInterval(buzzIntervalRef.current);
   };
@@ -116,6 +123,32 @@ const Timer = ({ isFinished, setIsFinished, onTimerFinish }: {
     <div className="text-center bg-teal-950/50 p-4 rounded-lg border border-teal-700">
       <div className={`text-6xl font-mono text-white mb-4 transition-colors ${isFinished ? 'text-red-500' : ''}`}>
         {formatTime(time)}
+      </div>
+      {/* Repetition Counter */}
+      <div className="flex items-center justify-center gap-4 mb-4">
+        <span className="text-teal-400">Repetitions:</span>
+        <button
+          onClick={() => setRepetitions((r) => Math.max(0, r - 1))}
+          className="p-2 rounded-full bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50"
+          disabled={repetitions === 0}
+          aria-label="Decrease repetitions"
+        >
+          <Minus size={18} />
+        </button>
+        <span className="min-w-10 text-white text-xl font-semibold tabular-nums">{repetitions}</span>
+        <button
+          onClick={() => setRepetitions((r) => r + 1)}
+          className="p-2 rounded-full bg-gray-700 text-white hover:bg-gray-600"
+          aria-label="Increase repetitions"
+        >
+          <Plus size={18} />
+        </button>
+        <button
+          onClick={() => setRepetitions(0)}
+          className="ml-2 px-3 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 text-sm"
+        >
+          Reset
+        </button>
       </div>
       <div className="flex items-center justify-center gap-4 mb-4">
         <label htmlFor="timer-input" className="text-teal-400">Set Time (mm:ss):</label>

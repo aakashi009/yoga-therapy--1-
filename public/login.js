@@ -15,6 +15,9 @@ loginForm.addEventListener('submit', (e) => {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
+    // Determine selected role
+    const role = document.querySelector('input[name="role"]:checked')?.value || 'user';
+
     // Display a "Logging in..." message to the user
     messageDisplay.textContent = 'Logging in...';
     messageDisplay.className = 'message'; // Reset class to remove previous error/success styling
@@ -24,17 +27,20 @@ loginForm.addEventListener('submit', (e) => {
         .then((userCredential) => {
             // This block runs if the login is successful
             const user = userCredential.user;
-            console.log('User signed in successfully:', user);
+            console.log('User signed in successfully:', user, 'as', role);
             
             // Show a success message
             messageDisplay.textContent = 'Success! Redirecting...';
             messageDisplay.classList.add('success');
             
-            // Redirect to the main page of your React application
-            // This is the key change for MERN integration
+            // Redirect based on role
             setTimeout(() => {
-                window.location.href = '/'; 
-            }, 1000); // 1-second delay to show the success message
+                if (role === 'doctor') {
+                    window.location.href = '/doctor';
+                } else {
+                    window.location.href = '/';
+                }
+            }, 800);
 
         })
         .catch((error) => {
